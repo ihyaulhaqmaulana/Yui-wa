@@ -5,8 +5,9 @@ const moment = require('moment-timezone')
 const ffmpeg = require('fluent-ffmpeg')
 const FormData = require('form-data')
 const chalk = require('chalk')
+const { Configuration, OpenAIApi } = require('openai')
 const fs = require('fs')
-const { apikey } = require('../config.json')
+const { apikey, openaikey } = require('../config.json')
 
 const { help } = require('../utils/message')
 
@@ -88,7 +89,7 @@ module.exports = async (sock, msg) => {
 	const groupMembers = groupMetadata?.participants || []
 	const groupAdmins = groupMembers.filter((v) => v.admin).map((v) => v.id)
 
-	const isCmd = /^[°•π÷×¶∆£¢€¥®™✓_=|~!?#$%^&.+-,\\\©^]/.test(body)
+	const isCmd = /^[!#.]/.test(body)
 	const prefix = isCmd ? body[0] : ''
 	const isGroupAdmins = groupAdmins.includes(sender)
 	const isBotGroupAdmins = groupMetadata && groupAdmins.includes(botId)
@@ -120,7 +121,7 @@ module.exports = async (sock, msg) => {
 	var stream
 	if (isQuotedImage || isQuotedVideo || isQuotedAudio || isQuotedSticker) {
 		mediaType = quotedType
-		msg.message[mediaType] = msg.message.extendedTextMessage.contextInfo.quotedMessage[mediaType]
+		msg.message[mediaType] = msg?.message?.extendedTextMessage?.contextInfo?.quotedMessage?.[mediaType]
 		stream = await downloadContentFromMessage(msg.message[mediaType], mediaType.replace('Message', '')).catch(console.error)
 	}
 
@@ -134,6 +135,7 @@ module.exports = async (sock, msg) => {
 	}
 
 	switch (command) {
+		// GENERAL
 		case 'owner':
 			const vcard =
 				'BEGIN:VCARD\n' + // metadata of the contact card
@@ -151,8 +153,25 @@ module.exports = async (sock, msg) => {
 			})
 			break
 		case 'help':
+		case 'menu':
 			reply(help(prefix))
 			break
+		case 'yui':
+			reply('Hai👋🏻!!! Yui Online\n\nKetik *.help* atau *.menu* untuk melihat list menu yang ada di Bot Yui. Apabila bot bermasalah atau request fitur, bisa lapor owner dengan command *.owner*\n\nGunakan bot ini dengan bijak!\nTerima kasih🙏🏻')
+			break
+		case 'scbot':
+			reply('Source code(base) yang saya gunakan: https://github.com/LoL-Human/Case-WA-MD.git')
+			break
+		case 'checkapikey':
+			if (!isOwner) return reply('Command hanya untuk owner bot.')
+			return axios.get(`https://api.lolhuman.xyz/api/checkapikey?apikey=${apikey}`).then(({ data }) => {
+				let text = `Username : ${data.result.username}\n`
+				text += `Request Total : ${data.result.requests}\n`
+				text += `Request Today : ${data.result.today}\n`
+				text += `Account Type : ${data.result.account_type}\n`
+				text += `Expired : ${data.result.expired}`
+				return reply(text)
+			})
 
 		// Islami //
 		case 'listsurah':
@@ -217,7 +236,7 @@ module.exports = async (sock, msg) => {
 		case 'jadwalsholat':
 			if (args.length == 0) return reply(`Example: ${prefix + command} Yogyakarta`)
 			axios
-				.get(`https://api.lolhuman.xyz/api/sholat/${daerah}?apikey=${apikey}`)
+				.get(`https://api.lolhuman.xyz/api/sholat/${args[0]}?apikey=${apikey}`)
 				.then(({ data }) => {
 					var text = `Wilayah : ${data.result.wilayah}\n`
 					text += `Tanggal : ${data.result.tanggal}\n`
@@ -241,11 +260,11 @@ module.exports = async (sock, msg) => {
 			axios
 				.get(`https://api.lolhuman.xyz/api/ytsearch?apikey=${apikey}&query=${full_args}`)
 				.then(({ data }) => {
-					axios.get(`https://api.lolhuman.xyz/api/ytaudio2?apikey=${apikey}&url=https://www.youtube.com/watch?v=${data.result[0].videoId}`).then(({ data }) => {
+					axios.get(`https://api.lolhuman.xyz/api/ytaudio?apikey=${apikey}&url=https://www.youtube.com/watch?v=${data.result[0].videoId}`).then(({ data }) => {
 						var caption = `❖ Title    : *${data.result.title}*\n`
-						caption += `❖ Size     : *${data.result.size}*`
+						caption += `❖ Size     : *${data.result.link.size}*`
 						sock.sendMessage(from, { image: { url: data.result.thumbnail }, caption }).then(() => {
-							sock.sendMessage(from, { audio: { url: data.result.link }, mimetype: 'audio/mp4', fileName: `${data.result.title}.mp3`, ptt: true })
+							sock.sendMessage(from, { audio: { url: data.result.link.link }, mimetype: 'audio/mp4', fileName: `${data.result.title}.mp3` })
 						})
 					})
 				})
@@ -271,25 +290,26 @@ module.exports = async (sock, msg) => {
 		case 'ytmp3':
 			if (args.length == 0) return reply(`Example: ${prefix + command} https://www.youtube.com/watch?v=qZIQAk-BUEc`)
 			axios
-				.get(`https://api.lolhuman.xyz/api/ytaudio2?apikey=${apikey}&url=${args[0]}`)
+				.get(`https://api.lolhuman.xyz/api/ytaudio?apikey=${apikey}&url=${args[0]}`)
 				.then(({ data }) => {
 					var caption = `❖ Title    : *${data.result.title}*\n`
-					caption += `❖ Size     : *${data.result.size}*`
+					caption += `❖ Size     : *${data.result.link.size}*`
 					sock.sendMessage(from, { image: { url: data.result.thumbnail }, caption }).then(() => {
-						sock.sendMessage(from, { audio: { url: data.result.link }, mimetype: 'audio/mp4', fileName: `${data.result.title}.mp3`, ptt: true })
+						sock.sendMessage(from, { audio: { url: data.result.link.link }, mimetype: 'audio/mp4', fileName: `${data.result.title}.mp3` })
 					})
 				})
 				.catch(console.error)
 			break
+		case 'yt':
 		case 'ytmp4':
 			if (args.length == 0) return reply(`Example: ${prefix + command} https://www.youtube.com/watch?v=qZIQAk-BUEc`)
 			axios
-				.get(`https://api.lolhuman.xyz/api/ytvideo2?apikey=${apikey}&url=${args[0]}`)
+				.get(`https://api.lolhuman.xyz/api/ytvideo?apikey=${apikey}&url=${args[0]}`)
 				.then(({ data }) => {
 					var caption = `❖ Title    : *${data.result.title}*\n`
-					caption += `❖ Size     : *${data.result.size}*`
+					caption += `❖ Size     : *${data.result.link.size}*`
 					sock.sendMessage(from, { image: { url: data.result.thumbnail }, caption }).then(() => {
-						sock.sendMessage(from, { audio: { url: data.result.link }, mimetype: 'video/mp4', fileName: `${data.result.title}.mp4` })
+						sock.sendMessage(from, { video: { url: data.result.link.link }, mimetype: 'video/mp4', fileName: `${data.result.title}.mp4` })
 					})
 				})
 				.catch(console.error)
@@ -304,6 +324,7 @@ module.exports = async (sock, msg) => {
 			if (args.length == 0) return reply(`Example: ${prefix + command} https://vt.tiktok.com/ZSwWCk5o/`)
 			sock.sendMessage(from, { video: { url: `https://api.lolhuman.xyz/api/tiktokwm?apikey=${apikey}&url=${args[0]}` } })
 			break
+		case 'tiktok':
 		case 'tiktoknowm':
 			if (args.length == 0) return reply(`Example: ${prefix + command} https://vt.tiktok.com/ZSwWCk5o/`)
 			axios.get(`https://api.lolhuman.xyz/api/tiktok?apikey=${apikey}&url=${args[0]}`).then(({ data }) => {
@@ -312,7 +333,7 @@ module.exports = async (sock, msg) => {
 			break
 		case 'tiktokmusic':
 			if (args.length == 0) return reply(`Example: ${prefix + command} https://vt.tiktok.com/ZSwWCk5o/`)
-			sock.sendMessage(from, { audio: { url: `https://api.lolhuman.xyz/api/tiktokmusic?apikey=${apikey}&url=${args[0]}` }, mimetype: 'audio/mp4', fileName: `${data.result.title}.mp3`, ptt: true })
+			sock.sendMessage(from, { audio: { url: `https://api.lolhuman.xyz/api/tiktokmusic?apikey=${apikey}&url=${args[0]}` }, mimetype: 'audio/mp4', fileName: `${data.result.title}.mp3`})
 			break
 		case 'spotify':
 			if (args.length == 0) return reply(`Example: ${prefix + command} https://open.spotify.com/track/0ZEYRVISCaqz5yamWZWzaA`)
@@ -351,14 +372,14 @@ module.exports = async (sock, msg) => {
 				caption += `Uploaded : ${data.result.info.date}\n`
 				caption += `Lirik :\n ${data.result.lirik}\n`
 				sock.sendMessage(from, { image: { url: data.result.image }, caption }).then(() => {
-					sock.sendMessage(from, { audio: { url: data.result.audio[0].link }, mimetype: 'audio/mp4', fileName: `${data.result.title}.mp3`, ptt: true })
+					sock.sendMessage(from, { audio: { url: data.result.audio[0].link }, mimetype: 'audio/mp4', fileName: `${data.result.title}.mp3`})
 				})
 			})
 			break
 		case 'igdl':
 			if (args.length == 0) return reply(`Example: ${prefix + command} https://www.instagram.com/p/CJ8XKFmJ4al/?igshid=1acpcqo44kgkn`)
 			axios.get(`https://api.lolhuman.xyz/api/instagram?apikey=${apikey}&url=${args[0]}`).then(({ data }) => {
-				var url = data.result
+				var url = data.result[0]
 				if (url.includes('.mp4')) {
 					sock.sendMessage(from, { video: { url }, mimetype: 'video/mp4' })
 				} else {
@@ -366,6 +387,7 @@ module.exports = async (sock, msg) => {
 				}
 			})
 			break
+		case 'ig':
 		case 'igdl2':
 			if (args.length == 0) return reply(`Example: ${prefix + command} https://www.instagram.com/p/CJ8XKFmJ4al/?igshid=1acpcqo44kgkn`)
 			axios.get(`https://api.lolhuman.xyz/api/instagram2?apikey=${apikey}&url=${args[0]}`).then(({ data }) => {
@@ -384,6 +406,7 @@ module.exports = async (sock, msg) => {
 				sock.sendMessage(from, { video: { url: data.result.link[data.result.link.length - 1].link }, mimetype: 'video/mp4' })
 			})
 			break
+		case 'fb':
 		case 'fbdl':
 			if (args.length == 0) return reply(`Example: ${prefix + command} https://id-id.facebook.com/SamsungGulf/videos/video-bokeh/561108457758458/`)
 			axios.get(`https://api.lolhuman.xyz/api/facebook?apikey=${apikey}&url=${args[0]}`).then(({ data }) => {
@@ -422,7 +445,9 @@ module.exports = async (sock, msg) => {
 			break
 		case 'pixiv':
 			if (args.length == 0) return reply(`Example: ${prefix + command} loli kawaii`)
-			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/pixiv?apikey=${apikey}&query=${full_args}` } })
+			axios.get(`https://api.lolhuman.xyz/api/pixiv?apikey=${apikey}&query=${full_args}`).then(({ data }) => {
+				sock.sendMessage(from, { image: { url: data.result[0].image } })
+			})
 			break
 		case 'pixivdl':
 			if (args.length == 0) return reply(`Example: ${prefix + command} 63456028`)
@@ -502,8 +527,8 @@ module.exports = async (sock, msg) => {
 		case 'wait':
 			if (!isImage && !isQuotedImage) return reply(`Kirim gambar dengan caption ${prefix + command} atau tag gambar yang sudah dikirim`)
 			var form = new FormData()
-			form.append('img', stream, 'tahu.jpg')
-			axios.post(`https://api.lolhuman.xyz/api/wait?apikey=${apikey}`, form).then(({ data }) => {
+			form.append('img', stream, { filename: 'tahu.jpg' })
+			axios.post(`https://api.lolhuman.xyz/api/wait?apikey=${apikey}`, form, { headers: { ...form.getHeaders() } }).then(({ data }) => {
 				var caption = `Anilist id : ${data.result.anilist_id}\n`
 				caption += `MAL id : ${data.result.mal_id}\n`
 				caption += `Title Romaji : ${data.result.title_romaji}\n`
@@ -625,6 +650,11 @@ module.exports = async (sock, msg) => {
 				reply(text)
 			})
 			break
+		case 'storynime':
+			axios.get(`https://api.lolhuman.xyz/api/${command}?apikey=${apikey}`).then(({ data }) => {
+				sock.sendMessage(from, { video: { url: data.result }, mimetype: 'video/mp4' })
+			})
+			break
 
 		// Information //
 		case 'kbbi':
@@ -650,7 +680,7 @@ module.exports = async (sock, msg) => {
 			for (var x of data.result) {
 				text += `==============================\n`
 				text += `\`\`\`Pertanyaan :\`\`\`\n${x.question.content}\n\n`
-				text += `\`\`\`Jawaban :\`\`\`\n${x.answer[0].content}\n`
+				text += `\`\`\`Jawaban :\`\`\`\n${x.answer.content}\n`
 				text += `==============================\n\n`
 			}
 			reply(text)
@@ -760,16 +790,6 @@ module.exports = async (sock, msg) => {
 			init_txt += `Pronunciation : ${data.result.pronunciation}\n`
 			reply(init_txt)
 			break
-		case 'brainly':
-			if (args.length == 0) return reply(`Example: ${prefix + command} Soekarno adalah`)
-			var { data } = await axios.get(`https://api.lolhuman.xyz/api/brainly?apikey=${apikey}&query=${full_args}`)
-			var text = 'Result : \n'
-			for (var x of data.result) {
-				text += `${x.title}\n`
-				text += `${x.url}\n\n`
-			}
-			reply(text)
-			break
 		case 'jadwaltv':
 			if (args.length == 0) return reply(`Example: ${prefix + command} RCTI`)
 			var { data } = await axios.get(`https://api.lolhuman.xyz/api/jadwaltv/${args[0]}?apikey=${apikey}`)
@@ -784,19 +804,6 @@ module.exports = async (sock, msg) => {
 			var text = `Jadwal TV Now :\n`
 			for (var x in data.result) {
 				text += `${x.toUpperCase()}${data.result[x]}\n\n`
-			}
-			reply(text)
-			break
-		case 'newsinfo':
-			var { data } = await axios.get(`https://api.lolhuman.xyz/api/newsinfo?apikey=${apikey}`)
-			var text = 'Result :\n'
-			for (var x of data.result) {
-				text += `Title : ${x.title}\n`
-				text += `Author : ${x.author}\n`
-				text += `Source : ${x.source.name}\n`
-				text += `Url : ${x.url}\n`
-				text += `Published : ${x.publishedAt}\n`
-				text += `Description : ${x.description}\n\n`
 			}
 			reply(text)
 			break
@@ -859,7 +866,7 @@ module.exports = async (sock, msg) => {
 			text += `Suhu : ${data.result.suhu}\n`
 			text += `Udara : ${data.result.udara}\n`
 			text += `Permukaan laut : ${data.result.permukaan_laut}\n`
-			sock.sendMessage(from, { location: { degreesLatitude: data.result.latitude, degreesLongitude: data.result.longitude } })
+			// sock.sendMessage(from, { location: { degreesLatitude: data.result.latitude, degreesLongitude: data.result.longitude } })
 			reply(text)
 			break
 		case 'covidindo':
@@ -1156,6 +1163,17 @@ module.exports = async (sock, msg) => {
 				reply(text)
 			})
 			break
+		case 'imagetoanime':
+			if (!isImage && !isQuotedImage) return reply(`Kirim gambar dengan caption ${prefix + command} atau tag gambar yang sudah dikirim`)
+			var form = new FormData()
+			form.append('img', stream, { filename: 'tahu.png' })
+			axios
+				.post(`https://api.lolhuman.xyz/api/imagetoanime?apikey=${apikey}`, form, { headers: { ...form.getHeaders() }, responseType: 'arraybuffer' })
+				.then(({ data }) => {
+					sock.sendMessage(from, { image: data })
+				})
+				.catch((err) => console.error(err.response?.data))
+			break
 
 		case '1977':
 		case 'aden':
@@ -1219,6 +1237,7 @@ module.exports = async (sock, msg) => {
 				.catch(console.error)
 			break
 		case 'sticker':
+		case 'stiker':
 		case 's':
 			if (!(isImage || isQuotedImage || isVideo || isQuotedVideo)) return reply(`Kirim media dengan caption ${prefix + command} atau tag media yang sudah dikirim`)
 			var stream = await downloadContentFromMessage(msg.message[mediaType], mediaType.replace('Message', ''))
@@ -1266,6 +1285,40 @@ module.exports = async (sock, msg) => {
 					.toFormat('webp')
 					.save(`./temp/stickers/${sender}.webp`)
 			}
+			break
+
+		case 'bonk2':
+			// let arus = await axios.get(`https://api.lolhuman.xyz/api/random/bonk?apikey=${apikey}`)
+			// let input = fs.writeFile(`./temp/dump/${sender}.gif`, arus, 'binary', (err) => {
+			// 	if (err) {
+			// 		console.log(err)
+			// 	} else {
+			// 		console.log('success create file');
+			// 	}
+			// })
+			// ffmpeg()
+			// 	.input(input)
+			// 	.on('start', (cmd) => {
+			// 		console.log(`Started : ${cmd}`);
+			// 	})
+			// 	.on('error', (err) => {
+			// 		console.log(`Error : ${err}`);
+			// 	})
+			// 	.on('end', async () => {
+			// 		sock.sendMessage(from, {video: `./temp/stickers/${sender}.mp4`, gifPlayback: true})
+			// 		fs.unlinkSync(`./temp/stickers/${sender}.mp4`)
+			// 		fs.unlinkSync(`./temp/dump/${sender}.gif`)
+			// 		console.log('finish');
+			// 	})
+			// 	.addOutputOptions([
+			// 		'-f mp4',
+			// 		'-pix_fmt yuv420p',
+			// 		'-vf "scale=trunc(iw/2)*2:trunc(ih/2)*2"'
+			// 	])
+			// 	.output(`./temp/stickers/${sender}.mp4`)
+
+			
+			
 			break
 
 		// Stalk
@@ -1337,94 +1390,99 @@ module.exports = async (sock, msg) => {
 				reply(data.result)
 			})
 			break
+		case 'p':
+			if (args.length == 0) return reply(`Example: ${prefix + command} halo simi`)
+			axios.get(`https://api.lolhuman.xyz/api/simi?apikey=${apikey}&text=${full_args}&badword=false`).then(({ data }) => {
+				reply(data.result)
+			})
+			break
+
+		// OpenAI
+		case 'ai':
+			if (args.length == 0) return reply(`Example: ${prefix + command} Buatkan artikel 100 kata tentang Riba`)
+			const configuration = new Configuration({
+				apiKey: openaikey
+			})
+			const openai = new OpenAIApi(configuration)
+			const response = await openai.createCompletion({
+				model: 'text-davinci-003',
+				prompt: full_args,
+				temperature: 0.3,
+				max_tokens: 3000,
+				top_p: 1.0,
+				frequency_penalty: 0.0,
+				presence_penalty: 0.0
+			})
+			reply(`${response.data.choices[0].text}`);
+			break
 
 		// Random Image //
 		case 'art':
+		case 'awoo':
+		case 'bite':
+		case 'blackpink':
+		case 'blush':
+		case 'bonk':
+		case 'bully':
 		case 'bts':
-		case 'exo':
+		case 'cecan':
+		case 'cogan':
+		case 'cringe':
+		case 'cry':
+		case 'dance':
+		case 'elaina':
 		case 'elf':
-		case 'loli':
-		case 'neko':
-		case 'waifu':
-		case 'shota':
+		case 'exo':
+		case 'estetic':
+		case 'glomp':
+		case 'handhold':
+		case 'happy':
+		case 'highfive':
+		case 'hug':
 		case 'husbu':
+		case 'kanna':
+		case 'kick':
+		case 'kill':
+		case 'megumin':
+		case 'nom':
+		case 'neko':
+		case 'pat':
+		case 'poke':
+		case 'quotesimage':
 		case 'sagiri':
 		case 'shinobu':
-		case 'megumin':
+		case 'shota':
+		case 'slap':
+		case 'smile':
+		case 'waifu':
 		case 'wallnime':
-		case 'quotesimage':
+		case 'wave':
+		case 'wink':
+		case 'yeet':
 			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/random/${command}?apikey=${apikey}` } })
 			break
 
-		case 'chiisaihentai':
-		case 'trap':
-		case 'blowjob':
-		case 'yaoi':
-		case 'ecchi':
-		case 'hentai':
-		case 'ahegao':
-		case 'hololewd':
-		case 'sideoppai':
-		case 'animefeets':
-		case 'animebooty':
-		case 'animethighss':
-		case 'hentaiparadise':
-		case 'animearmpits':
-		case 'hentaifemdom':
-		case 'lewdanimegirls':
-		case 'biganimetiddies':
-		case 'animebellybutton':
-		case 'hentai4everyone':
-			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/random/nsfw/${command}?apikey=${apikey}` } })
-			break
-
-		case 'bj':
-		case 'ero':
-		case 'cum':
-		case 'feet':
-		case 'yuri':
-		case 'trap':
-		case 'lewd':
-		case 'feed':
-		case 'eron':
-		case 'solo':
-		case 'gasm':
-		case 'poke':
-		case 'anal':
-		case 'holo':
-		case 'tits':
-		case 'kuni':
-		case 'kiss':
-		case 'erok':
 		case 'smug':
 		case 'baka':
-		case 'solog':
-		case 'feetg':
-		case 'lewdk':
-		case 'waifu':
-		case 'pussy':
-		case 'femdom':
 		case 'cuddle':
-		case 'hentai':
-		case 'eroyuri':
-		case 'cum_jpg':
-		case 'blowjob':
-		case 'erofeet':
-		case 'holoero':
-		case 'classic':
-		case 'erokemo':
 		case 'fox_girl':
-		case 'futanari':
-		case 'lewdkemo':
 		case 'wallpaper':
-		case 'pussy_jpg':
 		case 'kemonomimi':
-		case 'nsfw_avatar':
+		case 'feed':
+		case 'gasm':
+		case 'holo':
+		case 'tickle':
 			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/random2/${command}?apikey=${apikey}` } })
 			break
 
+		case 'ppcouple':
+			axios.get(`https://api.lolhuman.xyz/api/random/${command}?apikey=${apikey}`).then(({ data }) => {
+				sock.sendMessage(from, { image: { url: data.result.male }, caption: 'Male' })
+				sock.sendMessage(from, { image: { url: data.result.female }, caption: 'Female' })
+			})
+			break
+
 		// Textprome //
-		case 'blackpink':
 		case 'neon':
 		case 'greenneon':
 		case 'advanceglow':
@@ -1460,7 +1518,6 @@ module.exports = async (sock, msg) => {
 			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/textprome/${command}?apikey=${apikey}&text=${full_args}` } })
 			break
 
-		case 'pornhub':
 		case 'glitch':
 		case 'avenger':
 		case 'space':
@@ -1503,7 +1560,6 @@ module.exports = async (sock, msg) => {
 			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/photooxy1/${command}?apikey=${apikey}&text=${full_args}` } })
 			break
 
-		case 'tiktok':
 		case 'arcade8bit':
 		case 'battlefield4':
 		case 'pubg':
@@ -1543,12 +1599,7 @@ module.exports = async (sock, msg) => {
 		case 'silverplaybutton':
 		case 'freefire':
 			if (args.length == 0) return reply(`Example: ${prefix + command} LoL Human`)
-			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/ephoto1/${command}?apikey=${apikey}&text=${text}` } })
-			break
-		default:
-			if (isCmd) {
-				reply(`Sorry bro, command *${prefix}${command}* gk ada di list *${prefix}help*`)
-			}
+			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/ephoto1/${command}?apikey=${apikey}&text=${full_args}` } })
 			break
 	}
 }
