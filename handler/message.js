@@ -263,8 +263,8 @@ module.exports = async (sock, msg) => {
 					axios.get(`https://api.lolhuman.xyz/api/ytaudio?apikey=${apikey}&url=https://www.youtube.com/watch?v=${data.result[0].videoId}`).then(({ data }) => {
 						var caption = `❖ Title    : *${data.result.title}*\n`
 						caption += `❖ Size     : *${data.result.link.size}*`
-						sock.sendMessage(from, { image: { url: data.result.thumbnail }, caption }).then(() => {
-							sock.sendMessage(from, { audio: { url: data.result.link.link }, mimetype: 'audio/mp4', fileName: `${data.result.title}.mp3` })
+						sock.sendMessage(from, { image: { url: data.result.thumbnail }, caption }, { quoted: msg }).then(() => {
+							sock.sendMessage(from, { audio: { url: data.result.link.link }, mimetype: 'audio/mp4', fileName: `${data.result.title}.mp3` }, { quoted: msg })
 						})
 					})
 				})
@@ -294,8 +294,8 @@ module.exports = async (sock, msg) => {
 				.then(({ data }) => {
 					var caption = `❖ Title    : *${data.result.title}*\n`
 					caption += `❖ Size     : *${data.result.link.size}*`
-					sock.sendMessage(from, { image: { url: data.result.thumbnail }, caption }).then(() => {
-						sock.sendMessage(from, { audio: { url: data.result.link.link }, mimetype: 'audio/mp4', fileName: `${data.result.title}.mp3` })
+					sock.sendMessage(from, { image: { url: data.result.thumbnail }, caption }, { quoted: msg }).then(() => {
+						sock.sendMessage(from, { audio: { url: data.result.link.link }, mimetype: 'audio/mp4', fileName: `${data.result.title}.mp3` }, { quoted: msg })
 					})
 				})
 				.catch(console.error)
@@ -308,8 +308,8 @@ module.exports = async (sock, msg) => {
 				.then(({ data }) => {
 					var caption = `❖ Title    : *${data.result.title}*\n`
 					caption += `❖ Size     : *${data.result.link.size}*`
-					sock.sendMessage(from, { image: { url: data.result.thumbnail }, caption }).then(() => {
-						sock.sendMessage(from, { video: { url: data.result.link.link }, mimetype: 'video/mp4', fileName: `${data.result.title}.mp4` })
+					sock.sendMessage(from, { image: { url: data.result.thumbnail }, caption }, { quoted: msg }).then(() => {
+						sock.sendMessage(from, { video: { url: data.result.link.link }, mimetype: 'video/mp4', fileName: `${data.result.title}.mp4` }, { quoted: msg })
 					})
 				})
 				.catch(console.error)
@@ -317,23 +317,23 @@ module.exports = async (sock, msg) => {
 		case 'telesticker':
 			if (args.length == 0) return reply(`Example: ${prefix + command} https://t.me/addstickers/LINE_Menhera_chan_ENG`)
 			axios.get(`https://api.lolhuman.xyz/api/telestick?apikey=${apikey}&url=${args[0]}`).then(({ data }) => {
-				sock.sendMessage(from, { sticker: { url: data.result.sticker.random() } })
+				sock.sendMessage(from, { sticker: { url: data.result.sticker.random() } }, { quoted: msg })
 			})
 			break
 		case 'tiktokwm':
 			if (args.length == 0) return reply(`Example: ${prefix + command} https://vt.tiktok.com/ZSwWCk5o/`)
-			sock.sendMessage(from, { video: { url: `https://api.lolhuman.xyz/api/tiktokwm?apikey=${apikey}&url=${args[0]}` } })
+			sock.sendMessage(from, { video: { url: `https://api.lolhuman.xyz/api/tiktokwm?apikey=${apikey}&url=${args[0]}` } }, { quoted: msg })
 			break
 		case 'tiktok':
 		case 'tiktoknowm':
 			if (args.length == 0) return reply(`Example: ${prefix + command} https://vt.tiktok.com/ZSwWCk5o/`)
 			axios.get(`https://api.lolhuman.xyz/api/tiktok?apikey=${apikey}&url=${args[0]}`).then(({ data }) => {
-				sock.sendMessage(from, { video: { url: data.result.link }, mimetype: 'video/mp4' })
+				sock.sendMessage(from, { video: { url: data.result.link }, mimetype: 'video/mp4' }, { quoted: msg })
 			})
 			break
 		case 'tiktokmusic':
 			if (args.length == 0) return reply(`Example: ${prefix + command} https://vt.tiktok.com/ZSwWCk5o/`)
-			sock.sendMessage(from, { audio: { url: `https://api.lolhuman.xyz/api/tiktokmusic?apikey=${apikey}&url=${args[0]}` }, mimetype: 'audio/mp4', fileName: `${data.result.title}.mp3`})
+			sock.sendMessage(from, { audio: { url: `https://api.lolhuman.xyz/api/tiktokmusic?apikey=${apikey}&url=${args[0]}` }, mimetype: 'audio/mp4', fileName: `${data.result.title}.mp3`}, { quoted: msg })
 			break
 		case 'spotify':
 			if (args.length == 0) return reply(`Example: ${prefix + command} https://open.spotify.com/track/0ZEYRVISCaqz5yamWZWzaA`)
@@ -343,8 +343,8 @@ module.exports = async (sock, msg) => {
 				caption += `Duration : ${data.result.duration}\n`
 				caption += `Popularity : ${data.result.popularity}\n`
 				caption += `Preview : ${data.result.preview_url}\n`
-				sock.sendMessage(from, { image: { url: data.result.thumbnail }, caption }).then(() => {
-					sock.sendMessage(from, { audio: { url: data.result.link }, mimetype: 'audio/mp4', fileName: `${data.result.title}.mp3`, ptt: true })
+				sock.sendMessage(from, { image: { url: data.result.thumbnail }, caption }, { quoted: msg }).then(() => {
+					sock.sendMessage(from, { audio: { url: data.result.link }, mimetype: 'audio/mp4', fileName: `${data.result.title}.mp3`, ptt: true }, { quoted: msg })
 				})
 			})
 			break
@@ -371,8 +371,8 @@ module.exports = async (sock, msg) => {
 				caption += `Album : ${data.result.info.album}\n`
 				caption += `Uploaded : ${data.result.info.date}\n`
 				caption += `Lirik :\n ${data.result.lirik}\n`
-				sock.sendMessage(from, { image: { url: data.result.image }, caption }).then(() => {
-					sock.sendMessage(from, { audio: { url: data.result.audio[0].link }, mimetype: 'audio/mp4', fileName: `${data.result.title}.mp3`})
+				sock.sendMessage(from, { image: { url: data.result.image }, caption }, { quoted: msg }).then(() => {
+					sock.sendMessage(from, { audio: { url: data.result.audio[0].link }, mimetype: 'audio/mp4', fileName: `${data.result.title}.mp3`}, { quoted: msg })
 				})
 			})
 			break
@@ -381,9 +381,9 @@ module.exports = async (sock, msg) => {
 			axios.get(`https://api.lolhuman.xyz/api/instagram?apikey=${apikey}&url=${args[0]}`).then(({ data }) => {
 				var url = data.result[0]
 				if (url.includes('.mp4')) {
-					sock.sendMessage(from, { video: { url }, mimetype: 'video/mp4' })
+					sock.sendMessage(from, { video: { url }, mimetype: 'video/mp4' }, { quoted: msg })
 				} else {
-					sock.sendMessage(from, { image: { url } })
+					sock.sendMessage(from, { image: { url } }, { quoted: msg })
 				}
 			})
 			break
@@ -393,9 +393,9 @@ module.exports = async (sock, msg) => {
 			axios.get(`https://api.lolhuman.xyz/api/instagram2?apikey=${apikey}&url=${args[0]}`).then(({ data }) => {
 				for (var x of data.result) {
 					if (x.includes('.mp4')) {
-						sock.sendMessage(from, { video: { url: x }, mimetype: 'video/mp4' })
+						sock.sendMessage(from, { video: { url: x }, mimetype: 'video/mp4' }, { quoted: msg })
 					} else {
-						sock.sendMessage(from, { image: { url: x } })
+						sock.sendMessage(from, { image: { url: x } }, { quoted: msg })
 					}
 				}
 			})
@@ -403,14 +403,14 @@ module.exports = async (sock, msg) => {
 		case 'twtdl':
 			if (args.length == 0) return reply(`Example: ${prefix + command} https://twitter.com/gofoodindonesia/status/1229369819511709697`)
 			axios.get(`https://api.lolhuman.xyz/api/twitter?apikey=${apikey}&url=${args[0]}`).then(({ data }) => {
-				sock.sendMessage(from, { video: { url: data.result.link[data.result.link.length - 1].link }, mimetype: 'video/mp4' })
+				sock.sendMessage(from, { video: { url: data.result.link[data.result.link.length - 1].link }, mimetype: 'video/mp4' }, { quoted: msg })
 			})
 			break
 		case 'fb':
 		case 'fbdl':
 			if (args.length == 0) return reply(`Example: ${prefix + command} https://id-id.facebook.com/SamsungGulf/videos/video-bokeh/561108457758458/`)
 			axios.get(`https://api.lolhuman.xyz/api/facebook?apikey=${apikey}&url=${args[0]}`).then(({ data }) => {
-				sock.sendMessage(from, { video: { url: data.result }, mimetype: 'video/mp4' })
+				sock.sendMessage(from, { video: { url: data.result }, mimetype: 'video/mp4' }, { quoted: msg })
 			})
 			break
 		case 'zippyshare':
@@ -426,32 +426,32 @@ module.exports = async (sock, msg) => {
 		case 'pinterest':
 			if (args.length == 0) return reply(`Example: ${prefix + command} loli kawaii`)
 			axios.get(`https://api.lolhuman.xyz/api/pinterest?apikey=${apikey}&query=${full_args}`).then(({ data }) => {
-				sock.sendMessage(from, { image: { url: data.result } })
+				sock.sendMessage(from, { image: { url: data.result } }, { quoted: msg })
 			})
 			break
 		case 'pinterest2':
 			if (args.length == 0) return reply(`Example: ${prefix + command} loli kawaii`)
 			axios.get(`https://api.lolhuman.xyz/api/pinterest2?apikey=${apikey}&query=${full_args}`).then(({ data }) => {
 				for (var x of data.result.slice(0, 5)) {
-					sock.sendMessage(from, { image: { url: x } })
+					sock.sendMessage(from, { image: { url: x } }, { quoted: msg })
 				}
 			})
 			break
 		case 'pinterestdl':
 			if (args.length == 0) return reply(`Example: ${prefix + command} https://id.pinterest.com/pin/696580267364426905/`)
 			axios.get(`https://api.lolhuman.xyz/api/pinterestdl?apikey=${apikey}&url=${args[0]}`).then(({ data }) => {
-				sock.sendMessage(from, { image: { url: data.result[0] } })
+				sock.sendMessage(from, { image: { url: data.result[0] } }, { quoted: msg })
 			})
 			break
 		case 'pixiv':
 			if (args.length == 0) return reply(`Example: ${prefix + command} loli kawaii`)
 			axios.get(`https://api.lolhuman.xyz/api/pixiv?apikey=${apikey}&query=${full_args}`).then(({ data }) => {
-				sock.sendMessage(from, { image: { url: data.result[0].image } })
+				sock.sendMessage(from, { image: { url: data.result[0].image } }, { quoted: msg })
 			})
 			break
 		case 'pixivdl':
 			if (args.length == 0) return reply(`Example: ${prefix + command} 63456028`)
-			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/pixivdl/${args[0]}?apikey=${apikey}` } })
+			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/pixivdl/${args[0]}?apikey=${apikey}` } }, { quoted: msg })
 			break
 
 		// AniManga //
@@ -467,7 +467,7 @@ module.exports = async (sock, msg) => {
 					caption += `- ${x.title.romaji} (${x.title.native})\n`
 				}
 				caption += `\nDescription : \n${data.result.description.replace(/__/g, '_')}`
-				sock.sendMessage(from, { image: { url: data.result.image.large }, caption })
+				sock.sendMessage(from, { image: { url: data.result.image.large }, caption }, { quoted: msg })
 			})
 			break
 		case 'manga':
@@ -493,7 +493,7 @@ module.exports = async (sock, msg) => {
 					caption += `- ${x.name.full} (${x.name.native})\n`
 				}
 				caption += `\nDescription : ${data.result.description}`
-				sock.sendMessage(from, { image: { url: data.result.coverImage.large }, caption })
+				sock.sendMessage(from, { image: { url: data.result.coverImage.large }, caption }, { quoted: msg })
 			})
 			break
 		case 'anime':
@@ -521,7 +521,7 @@ module.exports = async (sock, msg) => {
 					caption += `- ${x.name.full} (${x.name.native})\n`
 				}
 				caption += `\nDescription : ${data.result.description}`
-				sock.sendMessage(from, { image: { url: data.result.coverImage.large }, caption })
+				sock.sendMessage(from, { image: { url: data.result.coverImage.large }, caption }, { quoted: msg })
 			})
 			break
 		case 'wait':
@@ -561,7 +561,7 @@ module.exports = async (sock, msg) => {
 						caption += `${y} - ${link_dl[x][y]}\n`
 					}
 				}
-				sock.sendMessage(from, { image: { url: data.result.thumbnail }, caption })
+				sock.sendMessage(from, { image: { url: data.result.thumbnail }, caption }, { quoted: msg })
 			})
 			break
 		case 'kusonimesearch':
@@ -585,7 +585,7 @@ module.exports = async (sock, msg) => {
 						caption += `${y} - ${link_dl[x][y]}\n`
 					}
 				}
-				sock.sendMessage(from, { image: { url: data.result.thumbnail }, caption })
+				sock.sendMessage(from, { image: { url: data.result.thumbnail }, caption }, { quoted: msg })
 			})
 			break
 		case 'otakudesu':
@@ -652,7 +652,7 @@ module.exports = async (sock, msg) => {
 			break
 		case 'storynime':
 			axios.get(`https://api.lolhuman.xyz/api/${command}?apikey=${apikey}`).then(({ data }) => {
-				sock.sendMessage(from, { video: { url: data.result }, mimetype: 'video/mp4' })
+				sock.sendMessage(from, { video: { url: data.result }, mimetype: 'video/mp4' }, { quoted: msg })
 			})
 			break
 
@@ -963,7 +963,7 @@ module.exports = async (sock, msg) => {
 			caption += `Date Release : ${data.result.date_release}\n`
 			caption += `Language : ${data.result.language}\n`
 			caption += `Link Download : ${data.result.link_dl}`
-			sock.sendMessage(from, { image: { url: data.result.thumbnail }, caption })
+			sock.sendMessage(from, { image: { url: data.result.thumbnail }, caption }, { quoted: msg })
 			break
 		case 'drakorongoing':
 			var { data } = await axios.get(`https://api.lolhuman.xyz/api/drakorongoing?apikey=${apikey}`)
@@ -992,7 +992,7 @@ module.exports = async (sock, msg) => {
 			caption += `Pages : ${data.result.pages}\n`
 			caption += `Description : ${data.result.desc}\n\n`
 			caption += `Story : \n${data.result.story}`
-			sock.sendMessage(from, { image: { url: data.result.photo }, caption })
+			sock.sendMessage(from, { image: { url: data.result.photo }, caption }, { quoted: msg })
 			break
 		case 'wattpadsearch':
 			if (args.length == 0) return reply(`Example: ${prefix + command} Tere Liye`)
@@ -1020,7 +1020,7 @@ module.exports = async (sock, msg) => {
 			var caption = `Title : ${data.result.title}\n`
 			caption += `Desc : ${data.result.desc}\n`
 			caption += `Story :\n${data.result.story}\n`
-			sock.sendMessage(from, { image: { url: data.result.thumbnail }, caption })
+			sock.sendMessage(from, { image: { url: data.result.thumbnail }, caption }, { quoted: msg })
 			break
 
 		// Searching
@@ -1031,20 +1031,20 @@ module.exports = async (sock, msg) => {
 			if (command === 'wallpapersearch') {
 				command = 'wallpaper'
 			}
-			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/${command}?apikey=${apikey}&query=${full_args}` } })
+			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/${command}?apikey=${apikey}&query=${full_args}` } }, { quoted: msg })
 			break
 		case 'gimage2':
 			if (args.length == 0) return reply(`Example: ${prefix + command} loli kawaii`)
 			axios.get(`https://api.lolhuman.xyz/api/gimage2?apikey=${apikey}&query=${full_args}`).then(({ data }) => {
 				for (var x of data.result.slice(0, 5)) {
-					sock.sendMessage(from, { image: { url: x } })
+					sock.sendMessage(from, { image: { url: x } }, { quoted: msg })
 				}
 			})
 			break
 		case 'wallpapersearch2':
 			if (args.length == 0) return reply(`Example: ${prefix + command} loli kawaii`)
 			axios.get(`https://api.lolhuman.xyz/api/wallpaper2?apikey=${apikey}&query=${full_args}`).then(({ data }) => {
-				sock.sendMessage(from, { image: { url: data.result } })
+				sock.sendMessage(from, { image: { url: data.result } }, { quoted: msg })
 			})
 			break
 		case 'playstore':
@@ -1112,13 +1112,13 @@ module.exports = async (sock, msg) => {
 			break
 
 		// Entertainment
-		case 'asupan':
-			axios.get(`https://api.lolhuman.xyz/api/asupan?apikey=${apikey}`).then(({ data }) => {
-				sock.sendMessage(from, { video: { url: data.result }, mimetype: 'video/mp4' })
-			})
-			break
+		// case 'asupan':
+		// 	axios.get(`https://api.lolhuman.xyz/api/asupan?apikey=${apikey}`).then(({ data }) => {
+		// 		sock.sendMessage(from, { video: { url: data.result }, mimetype: 'video/mp4' }, { quoted: msg })
+		// 	})
+		// 	break
 		case 'wancak':
-			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/onecak?apikey=${apikey}` } })
+			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/onecak?apikey=${apikey}` } }, { quoted: msg })
 			break
 
 		// Primbon
@@ -1163,16 +1163,16 @@ module.exports = async (sock, msg) => {
 				reply(text)
 			})
 			break
-		case 'imagetoanime':
-			if (!isImage && !isQuotedImage) return reply(`Kirim gambar dengan caption ${prefix + command} atau tag gambar yang sudah dikirim`)
+		case 'jadianime':
+			if (!isImage && !isQuotedImage) return reply(`Kirim gambar dengan caption ${prefix + command} atau tag gambar yang sudah dikirim. Karena ada sedikit bug, ikuti langkah seperti ini dulu Karena ada bug, ikuti langkah seperti ini dulu https://i.ibb.co/y0V95Dw/Whats-App-Image-2022-12-27-at-9-57-46-AM.jpg`)
 			var form = new FormData()
 			form.append('img', stream, { filename: 'tahu.png' })
 			axios
-				.post(`https://api.lolhuman.xyz/api/imagetoanime?apikey=${apikey}`, form, { headers: { ...form.getHeaders() }, responseType: 'arraybuffer' })
-				.then(({ data }) => {
-					sock.sendMessage(from, { image: data })
-				})
-				.catch((err) => console.error(err.response?.data))
+							.post(`https://api.lolhuman.xyz/api/imagetoanime?apikey=${apikey}`, form, { headers: { ...form.getHeaders() }, responseType: 'arraybuffer' })
+							.then(({ data }) => {
+											sock.sendMessage(from, { image: data }, { quoted: msg })
+							})
+							.catch((err) => console.error(err.response?.data))
 			break
 
 		case '1977':
@@ -1232,7 +1232,7 @@ module.exports = async (sock, msg) => {
 					if (command === 'roundsticker' || command === 'stickerwm') {
 						return sock.sendMessage(from, { sticker: data })
 					}
-					sock.sendMessage(from, { image: data })
+					sock.sendMessage(from, { image: data }, { quoted: msg })
 				})
 				.catch(console.error)
 			break
@@ -1261,7 +1261,7 @@ module.exports = async (sock, msg) => {
 					])
 					.toFormat('webp')
 					.writeToStream(stickerStream)
-				sock.sendMessage(from, { sticker: { stream: stickerStream } })
+				sock.sendMessage(from, { sticker: { stream: stickerStream } }, { quoted: msg })
 			} else if (isVideo || isQuotedVideo) {
 				ffmpeg(stream)
 					.on('start', function (cmd) {
@@ -1271,7 +1271,7 @@ module.exports = async (sock, msg) => {
 						console.log(`Error : ${err}`)
 					})
 					.on('end', async () => {
-						sock.sendMessage(from, { sticker: { url: `./temp/stickers/${sender}.webp` } }).then(() => {
+						sock.sendMessage(from, { sticker: { url: `./temp/stickers/${sender}.webp` } }, { quoted: msg }).then(() => {
 							fs.unlinkSync(`./temp/stickers/${sender}.webp`)
 							console.log('Finish')
 						})
@@ -1331,7 +1331,7 @@ module.exports = async (sock, msg) => {
 				caption += `Followers : ${data.result.followers}\n`
 				caption += `Following : ${data.result.following}\n`
 				caption += `Bio : ${data.result.bio}`
-				sock.sendMessage(from, { image: { url: data.result.photo_profile }, caption })
+				sock.sendMessage(from, { image: { url: data.result.photo_profile }, caption }, { quoted: msg })
 			})
 			break
 		case 'stalkgithub':
@@ -1344,7 +1344,7 @@ module.exports = async (sock, msg) => {
 				caption += `Followers : ${data.result.followers}\n`
 				caption += `Following : ${data.result.following}\n`
 				caption += `Bio : ${data.result.bio}`
-				sock.sendMessage(from, { image: { url: data.result.avatar }, caption })
+				sock.sendMessage(from, { image: { url: data.result.avatar }, caption }, { quoted: msg })
 			})
 			break
 		case 'stalktwitter':
@@ -1358,7 +1358,7 @@ module.exports = async (sock, msg) => {
 				caption += `Following : ${data.result.following}\n`
 				caption += `Like : ${data.result.like}\n`
 				caption += `Description : ${data.result.description}`
-				sock.sendMessage(from, { image: { url: data.result.profile_picture }, caption })
+				sock.sendMessage(from, { image: { url: data.result.profile_picture }, caption }, { quoted: msg })
 			})
 			break
 		case 'stalktiktok':
@@ -1371,18 +1371,18 @@ module.exports = async (sock, msg) => {
 				caption += `Likes : ${data.result.likes}\n`
 				caption += `Video : ${data.result.video}\n`
 				caption += `Bio : ${data.result.bio}\n`
-				sock.sendMessage(from, { image: { url: data.result.user_picture }, caption })
+				sock.sendMessage(from, { image: { url: data.result.user_picture }, caption }, { quoted: msg })
 			})
 			break
 
 		// Other
 		case 'ssweb':
 			if (args.length == 0) return reply(`Example: ${prefix + command} https://api.lolhuman.xyz`)
-			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/ssweb?apikey=${apikey}&url=${args[0]}` } })
+			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/ssweb?apikey=${apikey}&url=${args[0]}` } }, { quoted: msg })
 			break
 		case 'ssweb2':
 			if (args.length == 0) return reply(`Example: ${prefix + command} https://api.lolhuman.xyz`)
-			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/sswebfull?apikey=${apikey}&url=${args[0]}` } })
+			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/sswebfull?apikey=${apikey}&url=${args[0]}` } }, { quoted: msg })
 			break
 		case 'shortlink':
 			if (args.length == 0) return reply(`Example: ${prefix + command} https://api.lolhuman.xyz`)
@@ -1459,7 +1459,7 @@ module.exports = async (sock, msg) => {
 		case 'wave':
 		case 'wink':
 		case 'yeet':
-			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/random/${command}?apikey=${apikey}` } })
+			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/random/${command}?apikey=${apikey}` } }, { quoted: msg })
 			break
 
 		case 'smug':
@@ -1472,13 +1472,13 @@ module.exports = async (sock, msg) => {
 		case 'gasm':
 		case 'holo':
 		case 'tickle':
-			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/random2/${command}?apikey=${apikey}` } })
+			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/random2/${command}?apikey=${apikey}` } }, { quoted: msg })
 			break
 
 		case 'ppcouple':
 			axios.get(`https://api.lolhuman.xyz/api/random/${command}?apikey=${apikey}`).then(({ data }) => {
-				sock.sendMessage(from, { image: { url: data.result.male }, caption: 'Male' })
-				sock.sendMessage(from, { image: { url: data.result.female }, caption: 'Female' })
+				sock.sendMessage(from, { image: { url: data.result.male }, caption: 'Male' }, { quoted: msg })
+				sock.sendMessage(from, { image: { url: data.result.female }, caption: 'Female' }, { quoted: msg })
 			})
 			break
 
@@ -1515,7 +1515,7 @@ module.exports = async (sock, msg) => {
 		case 'horrorblood':
 		case 'thunder':
 			if (args.length == 0) return reply(`Example: ${prefix + command} LoL Human`)
-			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/textprome/${command}?apikey=${apikey}&text=${full_args}` } })
+			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/textprome/${command}?apikey=${apikey}&text=${full_args}` } }, { quoted: msg })
 			break
 
 		case 'glitch':
@@ -1528,7 +1528,7 @@ module.exports = async (sock, msg) => {
 		case 'steel3d':
 		case 'wallgravity':
 			if (args.length == 0) return reply(`Example: ${prefix + command} LoL Human`)
-			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/textprome2/${command}?apikey=${apikey}&text1=${args[0]}&text2=${args[1]}` } })
+			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/textprome2/${command}?apikey=${apikey}&text1=${args[0]}&text2=${args[1]}` } }, { quoted: msg })
 			break
 
 		// Photo Oxy //
@@ -1557,14 +1557,14 @@ module.exports = async (sock, msg) => {
 		case 'harrypotter':
 		case 'carvedwood':
 			if (args.length == 0) return reply(`Example: ${prefix + command} LoL Human`)
-			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/photooxy1/${command}?apikey=${apikey}&text=${full_args}` } })
+			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/photooxy1/${command}?apikey=${apikey}&text=${full_args}` } }, { quoted: msg })
 			break
 
 		case 'arcade8bit':
 		case 'battlefield4':
 		case 'pubg':
 			if (args.length == 0) return reply(`Example: ${prefix + command} LoL Human`)
-			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/photooxy2/${command}?apikey=${apikey}&text1=${args[0]}&text2=${args[1]}` } })
+			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/photooxy2/${command}?apikey=${apikey}&text1=${args[0]}&text2=${args[1]}` } }, { quoted: msg })
 			break
 
 		// Ephoto 360 //
@@ -1599,7 +1599,7 @@ module.exports = async (sock, msg) => {
 		case 'silverplaybutton':
 		case 'freefire':
 			if (args.length == 0) return reply(`Example: ${prefix + command} LoL Human`)
-			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/ephoto1/${command}?apikey=${apikey}&text=${full_args}` } })
+			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/ephoto1/${command}?apikey=${apikey}&text=${full_args}` } }, { quoted: msg })
 			break
 	}
 }
