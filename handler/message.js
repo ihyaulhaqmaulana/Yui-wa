@@ -172,6 +172,10 @@ module.exports = async (sock, msg) => {
 				text += `Expired : ${data.result.expired}`
 				return reply(text)
 			})
+			break
+		case 'donasi':
+			reply('Kamu bisa donasi untuk bot ini di https://trakteer.id/yui-bot')
+			break
 
 		// Islami //
 		case 'listsurah':
@@ -344,7 +348,7 @@ module.exports = async (sock, msg) => {
 				caption += `Popularity : ${data.result.popularity}\n`
 				caption += `Preview : ${data.result.preview_url}\n`
 				sock.sendMessage(from, { image: { url: data.result.thumbnail }, caption }, { quoted: msg }).then(() => {
-					sock.sendMessage(from, { audio: { url: data.result.link }, mimetype: 'audio/mp4', fileName: `${data.result.title}.mp3`, ptt: true }, { quoted: msg })
+					sock.sendMessage(from, { audio: { url: data.result.link }, mimetype: 'audio/mp4', fileName: `${data.result.title}.mp3` }, { quoted: msg })
 				})
 			})
 			break
