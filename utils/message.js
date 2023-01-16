@@ -9,6 +9,11 @@ ${prefix}help
 ${prefix}yui
 ${prefix}menu
 ${prefix}scbot
+${prefix}donasi
+
+*===== FITUR GRUP =====*
+${prefix}kick
+${prefix}add
 
 *===== STICKER =====*
 ${prefix}s
@@ -40,7 +45,6 @@ ${prefix}spotify
 ${prefix}spotifysearch
 ${prefix}jooxplay
 ${prefix}igdl
-${prefix}igdl2
 ${prefix}twtdl
 ${prefix}fbdl
 ${prefix}zippyshare
@@ -54,11 +58,6 @@ ${prefix}pixivdl
 ${prefix}character
 ${prefix}manga
 ${prefix}anime
-${prefix}wait
-${prefix}kusonime
-${prefix}kusonimesearch
-${prefix}otakudesu
-${prefix}otakudesusearch
 ${prefix}storynime
 
 *===== INFORMATION =====*
@@ -67,8 +66,6 @@ ${prefix}brainly
 ${prefix}jarak
 ${prefix}urbandictionary
 ${prefix}chord
-${prefix}heroml
-${prefix}mlstalk
 ${prefix}genshin
 ${prefix}qrreader
 ${prefix}wikipedia
@@ -127,7 +124,6 @@ ${prefix}highfive
 ${prefix}holo
 ${prefix}hug
 ${prefix}kanna
-${prefix}kick
 ${prefix}kill
 ${prefix}neko
 ${prefix}nom

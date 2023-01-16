@@ -795,7 +795,7 @@ module.exports = async (sock, msg) => {
 			reply(init_txt)
 			break
 		case 'jadwaltv':
-			if (args.length == 0) return reply(`Example: ${prefix + command} RCTI`)
+			if (args.length == 0) return reply(`Example: ${prefix + command} antv`)
 			var { data } = await axios.get(`https://api.lolhuman.xyz/api/jadwaltv/${args[0]}?apikey=${apikey}`)
 			var text = `Jadwal TV ${args[0].toUpperCase()}\n`
 			for (var x in data.result) {
@@ -1291,35 +1291,6 @@ module.exports = async (sock, msg) => {
 			}
 			break
 
-		case 'bonk2':
-			// let arus = await axios.get(`https://api.lolhuman.xyz/api/random/bonk?apikey=${apikey}`)
-			// let input = fs.writeFile(`./temp/dump/${sender}.gif`, arus, 'binary', (err) => {
-			// 	if (err) {
-			// 		console.log(err)
-			// 	} else {
-			// 		console.log('success create file');
-			// 	}
-			// })
-			// ffmpeg()
-			// 	.input(input)
-			// 	.on('start', (cmd) => {
-			// 		console.log(`Started : ${cmd}`);
-			// 	})
-			// 	.on('error', (err) => {
-			// 		console.log(`Error : ${err}`);
-			// 	})
-			// 	.on('end', async () => {
-			// 		sock.sendMessage(from, {video: `./temp/stickers/${sender}.mp4`, gifPlayback: true})
-			// 		fs.unlinkSync(`./temp/stickers/${sender}.mp4`)
-			// 		fs.unlinkSync(`./temp/dump/${sender}.gif`)
-			// 		console.log('finish');
-			// 	})
-			// 	.addOutputOptions([
-			// 		'-f mp4',
-			// 		'-pix_fmt yuv420p',
-			// 		'-vf "scale=trunc(iw/2)*2:trunc(ih/2)*2"'
-			// 	])
-			// 	.output(`./temp/stickers/${sender}.mp4`)
 
 			
 			
@@ -1445,7 +1416,6 @@ module.exports = async (sock, msg) => {
 		case 'hug':
 		case 'husbu':
 		case 'kanna':
-		case 'kick':
 		case 'kill':
 		case 'megumin':
 		case 'nom':
@@ -1604,6 +1574,29 @@ module.exports = async (sock, msg) => {
 		case 'freefire':
 			if (args.length == 0) return reply(`Example: ${prefix + command} LoL Human`)
 			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/ephoto1/${command}?apikey=${apikey}&text=${full_args}` } }, { quoted: msg })
+			break
+
+		// FITUR GRUP
+		case 'kick': {
+			if (!isGroup) return reply('Fitur ini hanya bisa digunakan dalam grup')
+			if (args.length == 0) return reply(`Example: ${prefix + command} @<tag user yang ingin di kick>`)
+			if (!isGroupAdmins) return reply('Fitur ini hanya bisa digunakan oleh admin')
+			if (!isBotGroupAdmins) return reply ('Jadikan Yui sebagai admin untuk menggunakan fitur ini')
+			let users = mentioned[0]
+			sock.groupParticipantsUpdate(from, [users], 'remove')
+		}
+			break
+		case 'add': {
+			if (!isGroup) return reply('Fitur ini hanya bisa digunakan dalam grup')
+			if (args.length == 0) return reply(`Example: ${prefix + command} +62 878-1234-1234`)
+			if (!isGroupAdmins) return reply('Fitur ini hanya bisa digunakan oleh admin')
+			if (!isBotGroupAdmins) return reply ('Jadikan Yui sebagai admin untuk menggunakan fitur ini')
+			let users = args.join().replace(/[^0-9]/g, '')+'@s.whatsapp.net'
+			if (users[0] === '0') {
+				users = '62' + users.slice(1)
+			}
+			sock.groupParticipantsUpdate(from, [users], 'add')
+		}
 			break
 	}
 }
