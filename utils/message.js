@@ -22,6 +22,7 @@ ${prefix}sticker
 
 *===== OPEN AI =====*
 ${prefix}ai
+${prefix}img
 ${prefix}jadianime ( Karena ada bug, ikuti langkah seperti ini dulu https://i.ibb.co/y0V95Dw/Whats-App-Image-2022-12-27-at-9-57-46-AM.jpg ) 
 
 *===== ISLAMI =====*

@@ -1391,6 +1391,11 @@ module.exports = async (sock, msg) => {
 			reply(`${response.data.choices[0].text}`);
 			break
 
+		case 'img':
+			if (args.length == 0) return reply(`Generate gambar dari teks \nContoh: ${prefix + command} tahu bacem`)
+			sock.sendMessage(from, { image: { url: `https://api.lolhuman.xyz/api/dall-e?apikey=${apikey}&text=${full_args}` } }, { quoted: msg })
+			break
+
 		// Random Image //
 		case 'art':
 		case 'awoo':
@@ -1582,8 +1587,8 @@ module.exports = async (sock, msg) => {
 			if (args.length == 0) return reply(`Example: ${prefix + command} @<tag user yang ingin di kick>`)
 			if (!isGroupAdmins) return reply('Fitur ini hanya bisa digunakan oleh admin')
 			if (!isBotGroupAdmins) return reply ('Jadikan Yui sebagai admin untuk menggunakan fitur ini')
-			let users = mentioned[0]
-			sock.groupParticipantsUpdate(from, [users], 'remove')
+			let users = mentioned
+			sock.groupParticipantsUpdate(from, users, 'remove')
 		}
 			break
 		case 'add': {
